@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>§34i / §34c Lizenz-Check (Ampel) – v2 Einfluss-Check</title>
+  <style>
+    :root{
+      --bg:#0b0f19;
+      --panel:#111827;
+      --panel2:#0f172a;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --line:#243041;
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --accent:#60a5fa;
+      --chip:#1f2937;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: linear-gradient(180deg, #0b0f19 0%, #070a12 100%);
+      color:var(--text);
+    }
+    .wrap{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px 18px 60px;
+    }
+    header{
+      display:flex;
+      gap:18px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom: 16px;
+    }
+    h1{
+      font-size: 20px;
+      margin:0;
+      letter-spacing:0.2px;
+    }
+    .sub{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+      max-width: 900px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    @media(min-width: 980px){
+      .grid{ grid-template-columns: 1.15fr 0.85fr; align-items:start; }
+    }
+    .card{
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+    }
+    .card h2{
+      margin:0 0 10px 0;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    @media(min-width: 720px){
+      .row.cols2{ grid-template-columns: 1fr 1fr; }
+      .row.cols3{ grid-template-columns: 1fr 1fr 1fr; }
+    }
+    label{
+      display:block;
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+      line-height: 1.35;
+    }
+    select, input[type="number"], input[type="text"]{
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #2c3b52;
+      background: #0b1220;
+      color: var(--text);
+      outline:none;
+    }
+    select:focus, input:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px rgba(96,165,250,0.15); }
+    .divider{
+      height:1px;
+      background: var(--line);
+      margin: 12px 0;
+    }
+    .btnbar{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      align-items:center;
+      margin-top: 10px;
+    }
+    button{
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #2c3b52;
+      background: #0b1220;
+      color: var(--text);
+      cursor:pointer;
+      font-weight: 700;
+    }
+    button.primary{
+      background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%);
+      border-color: rgba(96,165,250,0.35);
+    }
+    button:hover{ filter: brightness(1.07); }
+    .resultHeader{
+      display:flex;
+      gap: 12px;
+      align-items:center;
+    }
+    .ampel{
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: var(--muted);
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.06);
+      flex: 0 0 auto;
+    }
+    .ampel.green{ background: var(--good); box-shadow: 0 0 0 4px rgba(34,197,94,0.15); }
+    .ampel.yellow{ background: var(--warn); box-shadow: 0 0 0 4px rgba(245,158,11,0.15); }
+    .ampel.red{ background: var(--bad); box-shadow: 0 0 0 4px rgba(239,68,68,0.15); }
+    .big{
+      font-size: 18px;
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: .2px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid #2c3b52;
+      color: var(--text);
+      font-size: 12px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .kv{
+      margin-top: 10px;
+      display:grid;
+      gap: 10px;
+    }
+    .kv .box{
+      border: 1px dashed #334155;
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(15,23,42,0.35);
+    }
+    .kv h3{
+      margin:0 0 8px 0;
+      font-size: 13px;
+      letter-spacing: .05em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    ul{ margin: 0 0 0 18px; padding:0; }
+    li{ margin: 6px 0; color: var(--text); }
+    .muted{ color: var(--muted); }
+    textarea{
+      width:100%;
+      min-height: 180px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #2c3b52;
+      background: #0b1220;
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      line-height: 1.35;
+      resize: vertical;
+    }
+    details{
+      border:1px solid #233146;
+      border-radius:12px;
+      background: rgba(15,23,42,0.35);
+      padding: 10px 12px;
+    }
+    summary{ cursor:pointer; color: var(--muted); font-weight: 800; }
+    .foot{
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .warnbox{
+      border-left: 4px solid var(--warn);
+      background: rgba(245,158,11,0.10);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    .goodbox{
+      border-left: 4px solid var(--good);
+      background: rgba(34,197,94,0.10);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    .badbox{
+      border-left: 4px solid var(--bad);
+      background: rgba(239,68,68,0.10);
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    .smallcaps{ font-variant: all-small-caps; letter-spacing:.08em;}
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #2c3b52;
+      background: rgba(15,23,42,0.6);
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>§34i / §34c Lizenz-Check (Ampel) – v2 mit „Einfluss‑Check“</h1>
+        <div class="sub">
+          v2 ergänzt den <b>Beteiligungs-/Einfluss‑Check</b>, damit bei natürlichen Personen zwischen <b>privater Vermögensverwaltung</b> (passive Beteiligung)
+          und <b>unternehmerischem Handeln</b> (GF/beherrschender Einfluss) differenziert werden kann. Ergebnis: <b>Ampel + Lizenzempfehlung + Bank‑Textbaustein</b>.
+          <br><span class="muted">Hinweis: Entscheidungshilfe – ersetzt keine Rechtsberatung. Grenzfälle (GbR, Existenzgründung, Mitverpflichtungen) bitte zusätzlich prüfen.</span>
+        </div>
+      </div>
+      <div class="badge" title="Grundlogik: §34i bei Immobiliar-Verbraucherdarlehen (§491 Abs.3 BGB); sonst häufig §34c Nr.2">
+        <span class="smallcaps">Basislogik</span>
+        <span>§34i ↔ Immobiliar-Verbraucherdarlehen</span>
+        <span>§34c ↔ Darlehen außerhalb §34i</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- INPUT -->
+      <div class="card">
+        <h2>Eingabe</h2>
+
+        <div class="row cols2">
+          <div>
+            <label for="contractParty">Wer ist Darlehensnehmer / Vertragspartner?</label>
+            <select id="contractParty">
+              <option value="">Bitte auswählen …</option>
+              <option value="natural">Natürliche Person(en)</option>
+              <option value="entity">Juristische Person (z.B. GmbH/UG/AG/eG/e.V.)</option>
+              <option value="partnership">Personengesellschaft (z.B. GbR, OHG, KG)</option>
+            </select>
+            <div class="hint">Bei natürlichen Personen führt v2 automatisch einen <b>Einfluss‑Check</b> durch (passive Beteiligung vs. beherrschender Einfluss/GF).</div>
+          </div>
+
+          <div>
+            <label for="statusOverride">Status der Darlehensnehmer (optional Override)</label>
+            <select id="statusOverride">
+              <option value="">Automatisch ermitteln (empfohlen)</option>
+              <option value="consumer_only">Nur Verbraucher (§13 BGB)</option>
+              <option value="mixed_consumer">Gemischt (mind. 1 Verbraucher als Darlehensnehmer)</option>
+              <option value="entrepreneur_only">Nur Unternehmer (natürliche Personen, §14 BGB)</option>
+              <option value="unknown">Unklar</option>
+            </select>
+            <div class="hint">Nur nutzen, wenn ihr den Status bereits juristisch sauber geklärt habt. Ansonsten: <b>Auto</b>.</div>
+          </div>
+        </div>
+
+        <div id="influenceCard" style="display:none;">
+          <div class="divider"></div>
+          <h2>Einfluss‑Check (nur bei natürlichen Personen)</h2>
+
+          <div class="row cols2">
+            <div>
+              <label for="hasCompanyRelation">Level 1: Unternehmensbezug bei mind. einem Darlehensnehmer?</label>
+              <select id="hasCompanyRelation">
+                <option value="">Bitte auswählen …</option>
+                <option value="no">Nein (kein Selbstständig/keine Organfunktion/keine Beteiligung)</option>
+                <option value="yes">Ja (Selbstständig, GF/Prokurist oder Beteiligung vorhanden)</option>
+                <option value="unknown">Unklar</option>
+              </select>
+              <div class="hint">Wenn <b>Ja</b>, öffnet sich Level 2 (Rollen‑Qualifizierung).</div>
+            </div>
+            <div id="roleBlock" style="display:none;">
+              <label for="companyRole">Level 2: Rolle / Einfluss in Unternehmen</label>
+              <select id="companyRole">
+                <option value="">Bitte auswählen …</option>
+                <option value="A">A) Reiner Kapitalanleger / passive Beteiligung (keine GF‑Tätigkeit, kein beherrschender Einfluss)</option>
+                <option value="B">B) Minderheitsgesellschafter mit Mitarbeit (&lt; 25%, kein GF)</option>
+                <option value="C">C) Geschäftsführender Gesellschafter (GGF) – GF + Anteile</option>
+                <option value="D">D) Beherrschender Gesellschafter (Mehrheit &gt; 50% oder Sperrminorität mit Rechten)</option>
+                <option value="E">E) Geschäftsführer (ohne Anteile)</option>
+                <option value="F">F) Selbstständig / Freiberufler / Einzelunternehmer</option>
+              </select>
+              <div class="hint">Diese Auswahl dient der Abgrenzung „Vermögensverwaltung“ vs. „Unternehmerischer Einfluss“.</div>
+            </div>
+          </div>
+
+          <div class="row cols3" id="controlDetailRow" style="display:none;">
+            <div>
+              <label for="controlDetail">Bei D) Art des beherrschenden Einflusses</label>
+              <select id="controlDetail">
+                <option value="">Bitte auswählen …</option>
+                <option value="majority">Mehrheit &gt; 50% Stimmrechte</option>
+                <option value="blocking">Sperrminorität (≥ 25%) + besondere Rechte / Stimmbindung</option>
+                <option value="instruction">Weisungs-/Bestellungs-/Abberufungsrechte</option>
+                <option value="unknown">Unklar</option>
+              </select>
+            </div>
+            <div>
+              <label for="sharePct">Anteil (optional, %)</label>
+              <input id="sharePct" type="number" min="0" max="100" step="0.1" placeholder="z.B. 33" />
+              <div class="hint">Optional – hilft bei der Bankbegründung.</div>
+            </div>
+            <div></div>
+          </div>
+
+          <div class="row cols2" id="dealLinkRow" style="display:none;">
+            <div>
+              <label for="dealCompanyLink">Steht dieses Darlehen wirtschaftlich im Zusammenhang mit dem Unternehmen?</label>
+              <select id="dealCompanyLink">
+                <option value="">Bitte auswählen …</option>
+                <option value="no">Nein – rein privat (Wohnzweck / private Vermögensverwaltung)</option>
+                <option value="yes">Ja – Geld fließt in Unternehmen / betrifft Geschäftsbetrieb</option>
+                <option value="unknown">Unklar</option>
+              </select>
+              <div class="hint">Kernfrage für §13/§14‑Einordnung <b>im konkreten Geschäft</b>.</div>
+            </div>
+            <div>
+              <div class="pill" id="autoStatusPill">Auto‑Status: —</div>
+              <div class="hint">Das Tool leitet daraus einen geschäftsbezogenen Status ab (kann rechts über Override überschrieben werden).</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row cols2">
+          <div>
+            <label for="purpose">Mittelverwendung / Zweck (Hauptzweck)</label>
+            <select id="purpose">
+              <option value="">Bitte auswählen …</option>
+              <option value="private_home">Eigenheim (Kauf/Bau/Modernisierung)</option>
+              <option value="private_rental">Vermietung / Kapitalanlage (Bestand)</option>
+              <option value="commercial_invest">Gewerbliche Investition / Betriebsmittel / Liquidität</option>
+              <option value="share_purchase_or_injection">Anteile/Kapitalmaßnahme (Anteils-/Unternehmenskauf, Einlage, Gesellschafterdarlehen)</option>
+              <option value="refinance_private">Umschuldung (privat)</option>
+              <option value="free_use">Freie Verwendung (privat)</option>
+              <option value="unknown">Unklar</option>
+            </select>
+            <div class="hint">Wichtig: „Anteile/Kapitalmaßnahme“ kann <b>privat</b> (Vermögensverwaltung) oder <b>unternehmerisch</b> (MBO/Einlage in eigene Firma) sein → ggf. „Zusammenhang Unternehmen“ sauber angeben.</div>
+          </div>
+
+          <div>
+            <label for="propertyAcq">Erwerb/Erhaltung von Eigentum an Grundstück/Gebäude?</label>
+            <select id="propertyAcq">
+              <option value="">Bitte auswählen …</option>
+              <option value="yes">Ja (Kauf/Bau/Modernisierung/Rechte an Grundstück/Gebäude)</option>
+              <option value="no">Nein</option>
+              <option value="unknown">Unklar</option>
+            </select>
+            <div class="hint">Relevant für Immobiliarbezug (§491 Abs.3 BGB: Erwerb/Erhaltung Eigentum/Rechte).</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row cols3">
+          <div>
+            <label for="reCollateral">Wird eine Immobilie dinglich besichert?</label>
+            <select id="reCollateral">
+              <option value="">Bitte auswählen …</option>
+              <option value="yes">Ja</option>
+              <option value="no">Nein</option>
+              <option value="unknown">Unklar</option>
+            </select>
+          </div>
+
+          <div id="collateralTypeBlock" style="display:none;">
+            <label for="collateralType">Art des Sicherungsobjekts</label>
+            <select id="collateralType">
+              <option value="">Bitte auswählen …</option>
+              <option value="residential">Wohnimmobilie</option>
+              <option value="commercial">Gewerbeimmobilie</option>
+              <option value="mixed">Gemischt genutzt</option>
+              <option value="unknown">Unklar</option>
+            </select>
+          </div>
+
+          <div id="mixedShareBlock" style="display:none;">
+            <label for="mixedShare">Überwiegt Wohnen (&gt;50%)?</label>
+            <select id="mixedShare">
+              <option value="">Bitte auswählen …</option>
+              <option value="yes">Ja</option>
+              <option value="no">Nein</option>
+              <option value="unknown">Unklar</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <details>
+          <summary>Optionale Prüffelder (Grauzonen / Bank-Compliance)</summary>
+          <div class="row cols3" style="margin-top:10px;">
+            <div>
+              <label for="loanAmount">Nettodarlehen (EUR)</label>
+              <input id="loanAmount" type="number" min="0" step="1000" placeholder="z.B. 250000" />
+              <div class="hint">Wird für Existenzgründer-Check genutzt (≤ 75.000 €).</div>
+            </div>
+            <div>
+              <label for="existFounder">Existenzgründung / Aufnahme Tätigkeit?</label>
+              <select id="existFounder">
+                <option value="">Bitte auswählen …</option>
+                <option value="no">Nein</option>
+                <option value="yes">Ja</option>
+                <option value="unknown">Unklar</option>
+              </select>
+            </div>
+            <div>
+              <label for="spouseCob">Ehepartner als Mitdarlehensnehmer?</label>
+              <select id="spouseCob">
+                <option value="">Bitte auswählen …</option>
+                <option value="no">Nein</option>
+                <option value="yes">Ja</option>
+                <option value="unknown">Unklar</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row cols2" id="spouseBenefitBlock" style="display:none;">
+            <div>
+              <label for="spouseBenefit">Ehepartner hat Unternehmensbezug / wirtschaftlichen Vorteil?</label>
+              <select id="spouseBenefit">
+                <option value="">Bitte auswählen …</option>
+                <option value="yes">Ja</option>
+                <option value="no">Nein</option>
+                <option value="unknown">Unklar</option>
+              </select>
+              <div class="hint">Wenn Gewerbezweck, aber Ehepartner ohne Vorteil mit haftet → häufig erklärungsbedürftig (Risikohinweis).</div>
+            </div>
+            <div></div>
+          </div>
+        </details>
+
+        <div class="btnbar">
+          <button id="btnReset" type="button">Zurücksetzen</button>
+          <button id="btnEval" class="primary" type="button">Einschätzung erstellen</button>
+        </div>
+      </div>
+
+      <!-- OUTPUT -->
+      <div class="card">
+        <h2>Ergebnis</h2>
+
+        <div class="resultHeader">
+          <div id="ampel" class="ampel"></div>
+          <div>
+            <p id="headline" class="big">Noch keine Einschätzung</p>
+            <div id="tagline" class="muted">Fülle links die Felder aus und klicke „Einschätzung erstellen“.</div>
+          </div>
+        </div>
+
+        <div class="kv">
+          <div class="box">
+            <h3>Begründung (Kurz)</h3>
+            <ul id="reasons"></ul>
+          </div>
+
+          <div class="box">
+            <h3>Fehlende Angaben</h3>
+            <ul id="missing"></ul>
+            <div id="missingNone" class="muted">—</div>
+          </div>
+
+          <div class="box">
+            <h3>Textbaustein fürs Übergabeschreiben</h3>
+            <textarea id="bankText" spellcheck="false" placeholder="Hier erscheint automatisch ein Textbaustein …"></textarea>
+            <div class="hint">Der Text ist bewusst konservativ formuliert. Bitte konkrete Namen/Fakten ergänzen.</div>
+          </div>
+
+          <div id="warningsWrap"></div>
+        </div>
+
+        <div class="foot">
+          <b>Ampel-Interpretation:</b> Grün = „Eindeutig“ · Gelb = „Eindeutig, aber Prüfpunkte/Bank‑Compliance“ · Rot = „Pflichtangaben fehlen“.
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ---------- helpers ----------
+  function $(id){ return document.getElementById(id); }
+  function val(id){ return $(id).value; }
+  function numVal(id){
+    const v = $(id).value;
+    if(v === "" || v === null || v === undefined) return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+  function setDisplay(id, show){ $(id).style.display = show ? "" : "none"; }
+
+  function clearList(ul){
+    while(ul.firstChild) ul.removeChild(ul.firstChild);
+  }
+  function addLi(ul, text){
+    const li = document.createElement("li");
+    li.textContent = text;
+    ul.appendChild(li);
+  }
+
+  function purposeIsClearlyPrivate(p){
+    return ["private_home","private_rental","refinance_private","free_use"].includes(p);
+  }
+  function purposeIsClearlyCommercial(p){
+    return ["commercial_invest"].includes(p);
+  }
+
+  // ---------- UI dynamics ----------
+  function refreshUI(){
+    const cp = val("contractParty");
+
+    setDisplay("influenceCard", cp === "natural");
+
+    const hasRel = val("hasCompanyRelation");
+    setDisplay("roleBlock", cp === "natural" && hasRel === "yes");
+    const role = val("companyRole");
+    setDisplay("controlDetailRow", cp === "natural" && hasRel === "yes" && role === "D");
+    setDisplay("dealLinkRow", cp === "natural" && hasRel === "yes");
+
+    const rec = val("reCollateral");
+    setDisplay("collateralTypeBlock", rec === "yes");
+    const ctype = val("collateralType");
+    setDisplay("mixedShareBlock", rec === "yes" && ctype === "mixed");
+
+    const spouse = val("spouseCob");
+    setDisplay("spouseBenefitBlock", spouse === "yes");
+
+    // Update auto-status pill
+    updateAutoStatusPill();
+  }
+
+  function updateAutoStatusPill(){
+    const cp = val("contractParty");
+    if(cp !== "natural"){ $("autoStatusPill").textContent = "Auto‑Status: —"; return; }
+
+    const hasRel = val("hasCompanyRelation");
+    const role = val("companyRole");
+    const link = val("dealCompanyLink");
+    const purpose = val("purpose");
+
+    let auto = "—";
+
+    if(hasRel === "no"){
+      auto = "Nur Verbraucher (§13) – kein Unternehmensbezug";
+    } else if(hasRel === "yes"){
+      if(link === "no"){
+        auto = "Verbraucher (§13) – Unternehmensbezug, aber Darlehen privat";
+      } else if(link === "yes"){
+        auto = "Unternehmer (§14) – Darlehen im Unternehmenszusammenhang";
+      } else if(link === "unknown" || link === ""){
+        if(purposeIsClearlyPrivate(purpose)){
+          auto = "Verbraucher (§13) – aus Zweck abgeleitet (privat)";
+        } else if(purposeIsClearlyCommercial(purpose)){
+          auto = "Unternehmer (§14) – aus Zweck abgeleitet (gewerblich)";
+        } else {
+          auto = "Unklar – Zusammenhang Unternehmen angeben";
+        }
+      }
+
+      if(["C","D","E","F"].includes(role) && (link === "no" || (link === "" && purposeIsClearlyPrivate(purpose)))){
+        auto += " (Hinweis: unternehmerischer Hintergrund)";
+      }
+      if(["A","B"].includes(role) && (link === "yes" || (link === "" && purposeIsClearlyCommercial(purpose)))){
+        auto += " (Hinweis: passive Rolle, Zweck aber unternehmerisch)";
+      }
+    } else if(hasRel === "unknown" || hasRel === ""){
+      auto = "Unklar – Unternehmensbezug klären";
+    }
+
+    $("autoStatusPill").textContent = "Auto‑Status: " + auto;
+  }
+
+  ["contractParty","hasCompanyRelation","companyRole","dealCompanyLink","purpose","reCollateral","collateralType","spouseCob"].forEach(id => {
+    $(id).addEventListener("change", refreshUI);
+  });
+
+  // ---------- core evaluation ----------
+  function evaluate(data){
+    const missing = [];
+    const reasons = [];
+    const warnings = [];
+
+    // Required fields
+    if(!data.contractParty) missing.push("Vertragspartner (natürliche Person / juristische Person / Personengesellschaft)");
+    if(!data.purpose || data.purpose === "unknown") missing.push("Mittelverwendung/Zweck");
+    if(!data.propertyAcq || data.propertyAcq === "unknown") missing.push("Erwerb/Erhaltung von Eigentum an Grundstück/Gebäude (Ja/Nein)");
+    if(!data.reCollateral || data.reCollateral === "unknown") missing.push("Immobilie als Sicherheit (Ja/Nein)");
+
+    if(data.reCollateral === "yes"){
+      if(!data.collateralType || data.collateralType === "unknown") missing.push("Art des Sicherungsobjekts (Wohn/Gewerbe/gemischt)");
+      if(data.collateralType === "mixed" && (!data.mixedShare || data.mixedShare === "unknown")) missing.push("Bei gemischt: überwiegt Wohnen >50%?");
+    }
+
+    // Influence module requirements (only if natural & auto status)
+    if(data.contractParty === "natural" && !data.statusOverride){
+      if(!data.hasCompanyRelation || data.hasCompanyRelation === "unknown") missing.push("Einfluss‑Check Level 1: Unternehmensbezug (Ja/Nein)");
+      if(data.hasCompanyRelation === "yes"){
+        if(!data.companyRole) missing.push("Einfluss‑Check Level 2: Rolle/Einfluss (A–F)");
+        if(data.companyRole === "D" && (!data.controlDetail || data.controlDetail === "unknown" || data.controlDetail === "")){
+          missing.push("Bei beherrschendem Gesellschafter: Art des Einflusses (Mehrheit/Sperrminorität/Rechte)");
+        }
+        // For share/injection, the deal-link must be explicit (ambiguous otherwise)
+        if(data.purpose === "share_purchase_or_injection" && (!data.dealCompanyLink || data.dealCompanyLink === "unknown")){
+          missing.push("Zusammenhang Unternehmen (Ja/Nein) – bei Anteile/Kapitalmaßnahme zwingend");
+        }
+        // If purpose unknown-like or not clearly private/commercial, require deal-link
+        if((!data.dealCompanyLink || data.dealCompanyLink === "unknown" || data.dealCompanyLink === "") &&
+           !(purposeIsClearlyPrivate(data.purpose) || purposeIsClearlyCommercial(data.purpose))){
+          missing.push("Zusammenhang Unternehmen (Ja/Nein) – zur Statusableitung erforderlich");
+        }
+      }
+    }
+
+    // Optional warnings
+    const amount = data.loanAmountEur;
+    const existFounderSmall = (data.existFounder === "yes") && (amount !== null) && (amount <= 75000);
+    if(existFounderSmall){
+      warnings.push("Existenzgründung ≤ 75.000 €: §§ 491–512 BGB können anwendbar sein (verbraucherschutzähnlich) – konservativ prüfen.");
+    }
+    if(data.spouseCob === "yes"){
+      if(data.spouseBenefit === "no" || data.spouseBenefit === "unknown" || !data.spouseBenefit){
+        warnings.push("Ehepartner als Mitdarlehensnehmer ohne klaren wirtschaftlichen Vorteil: Struktur-/Erklärbedarf (ggf. als Sicherungsgeber statt Darlehensnehmer prüfen).");
+      }
+    }
+    if(data.contractParty === "partnership"){
+      warnings.push("Personengesellschaft als Darlehensnehmer: regelmäßig Unternehmerstatus; bei vermögensverwaltender GbR/Konstrukten bitte gesondert prüfen.");
+    }
+
+    // Determine borrower status (override or auto)
+    let borrowerStatus = null; // consumer_only, mixed_consumer, entrepreneur_only, unknown
+    let autoDerivationNote = null;
+
+    if(data.statusOverride){
+      borrowerStatus = data.statusOverride;
+      if(borrowerStatus === "unknown") missing.push("Status der Darlehensnehmer ist als „unklar“ gesetzt – für belastbare Empfehlung bitte klären oder Override anpassen.");
+    } else {
+      if(data.contractParty === "entity" || data.contractParty === "partnership"){
+        borrowerStatus = "entrepreneur_only";
+      } else if(data.contractParty === "natural"){
+        if(data.hasCompanyRelation === "no"){
+          borrowerStatus = "consumer_only";
+        } else if(data.hasCompanyRelation === "yes"){
+          // Use explicit deal link when present; else infer from purpose if clear
+          if(data.dealCompanyLink === "yes"){
+            borrowerStatus = "entrepreneur_only";
+          } else if(data.dealCompanyLink === "no"){
+            borrowerStatus = "consumer_only";
+          } else {
+            if(purposeIsClearlyPrivate(data.purpose)){
+              borrowerStatus = "consumer_only";
+              autoDerivationNote = "Zusammenhang Unternehmen nicht explizit angegeben – Status aus Zweck (privat) abgeleitet.";
+              warnings.push(autoDerivationNote);
+            } else if(purposeIsClearlyCommercial(data.purpose)){
+              borrowerStatus = "entrepreneur_only";
+              autoDerivationNote = "Zusammenhang Unternehmen nicht explizit angegeben – Status aus Zweck (gewerblich) abgeleitet.";
+              warnings.push(autoDerivationNote);
+            } else {
+              borrowerStatus = "unknown";
+            }
+          }
+
+          // Additional role-based warnings
+          if(["C","D","E","F"].includes(data.companyRole) && borrowerStatus === "consumer_only"){
+            warnings.push("Unternehmerischer Hintergrund (GGF/beherrschend/GF/Selbstständig), aber Darlehen als privat deklariert: Bank könnte Gewerbe vermuten – Zweck strikt dokumentieren.");
+          }
+          if(["A","B"].includes(data.companyRole) && borrowerStatus === "entrepreneur_only"){
+            warnings.push("Passive/Minderheitsrolle, aber Darlehen im Unternehmenszusammenhang: bitte dokumentieren, warum unternehmerischer Zweck vorliegt.");
+          }
+        } else {
+          borrowerStatus = "unknown";
+        }
+      }
+    }
+
+    // If borrowerStatus unknown and no missing? make it missing (needs clarification)
+    if(borrowerStatus === "unknown" && missing.length === 0){
+      missing.push("Status der Darlehensnehmer (Auto‑Ableitung unklar) – bitte Einfluss‑Check/Zusammenhang vervollständigen oder Override nutzen.");
+    }
+
+    // Determine consumer involvement flag
+    const consumerInvolved = (borrowerStatus === "consumer_only" || borrowerStatus === "mixed_consumer");
+    const allEntrepreneurOrEntity = (borrowerStatus === "entrepreneur_only") || (data.contractParty === "entity") || (data.contractParty === "partnership");
+
+    // Immobiliar context (BGB §491 Abs.3: Grundpfandrecht/Reallast ODER Erwerb/Erhaltung Eigentum)
+    const immobiliarContext = (data.reCollateral === "yes") || (data.propertyAcq === "yes");
+
+    // residential collateral marker for compliance notes
+    let collateralIsResidential = null;
+    if(data.reCollateral === "yes"){
+      if(data.collateralType === "residential") collateralIsResidential = true;
+      else if(data.collateralType === "commercial") collateralIsResidential = false;
+      else if(data.collateralType === "mixed"){
+        if(data.mixedShare === "yes") collateralIsResidential = true;
+        if(data.mixedShare === "no") collateralIsResidential = false;
+      }
+    }
+
+    // purpose marker (does not decide consumer/entrepreneur alone)
+    const purposeCommercialish = (data.purpose === "commercial_invest");
+
+    // Decide license (conservative)
+    let license = null;
+    let ampel = "red";
+    let headline = "Keine belastbare Einschätzung möglich";
+    let tagline = "Es fehlen Pflichtangaben.";
+
+    if(missing.length > 0){
+      ampel = "red";
+      license = "—";
+    } else {
+      if(consumerInvolved){
+        if(immobiliarContext){
+          license = "§ 34i GewO";
+          headline = "Ergebnis: §34i (Immobiliardarlehensvermittlung)";
+          tagline = "Verbraucher als Darlehensnehmer + Immobiliarbezug (dingliche Besicherung oder Eigentumserwerb/-erhaltung).";
+          reasons.push("Darlehensnehmer handelt in diesem Geschäft als Verbraucher (§13 BGB) (Auto/Override).");
+          reasons.push("Immobiliarbezug liegt vor (Sicherheit an Immobilie oder Zweck Erwerb/Erhaltung Eigentum).");
+          ampel = warnings.length ? "yellow" : "green";
+        } else {
+          license = "§ 34c Abs.1 S.1 Nr.2 GewO";
+          headline = "Ergebnis: §34c (Darlehensvermittlung)";
+          tagline = "Verbraucherdarlehen ohne Immobiliarbezug (kein Grundpfandrecht/Reallast und kein Eigentumserwerb/-erhaltung).";
+          reasons.push("Darlehensnehmer handelt als Verbraucher (§13 BGB) (Auto/Override).");
+          reasons.push("Kein Immobiliarbezug nach den Angaben.");
+          ampel = warnings.length ? "yellow" : "green";
+        }
+      } else {
+        license = "§ 34c Abs.1 S.1 Nr.2 GewO";
+        headline = "Ergebnis: §34c (Darlehensvermittlung)";
+        tagline = "Kein Verbraucher als Darlehensnehmer (Unternehmer/juristische Person/Personengesellschaft).";
+        reasons.push("Darlehensnehmer handelt als Unternehmer (§14 BGB) bzw. ist juristische Person/Personengesellschaft (Auto/Override).");
+        if(immobiliarContext){
+          reasons.push("Immobiliarbezug vorhanden – ohne Verbraucherstatus greift §34i typischerweise nicht.");
+        } else {
+          reasons.push("Kein Immobiliarbezug nach den Angaben.");
+        }
+        if(purposeCommercialish && collateralIsResidential === true){
+          warnings.push("Gewerbezweck + Wohnimmobilie als Sicherheit: rechtlich oft §34c, aber Bank-Compliance verlangt teils zusätzliche Einordnung/Dokumentation.");
+        }
+        ampel = warnings.length ? "yellow" : "green";
+      }
+    }
+
+    // Build bank text
+    const bankText = buildBankText({
+      license, borrowerStatus, consumerInvolved, allEntrepreneurOrEntity, immobiliarContext,
+      collateralIsResidential, data
+    }, warnings);
+
+    return {ampel, license, borrowerStatus, headline, tagline, reasons, missing, warnings, bankText};
+  }
+
+  function buildBankText(ctx, warnings){
+    const d = ctx.data;
+    const lines = [];
+
+    lines.push("Betreff: Einordnung Erlaubnispflicht / §34i vs. §34c GewO (Vermittlung)");
+    lines.push("");
+
+    // Influence summary (only for natural)
+    if(d.contractParty === "natural"){
+      lines.push("Einfluss-/Beteiligungscheck (sofern relevant):");
+      if(d.hasCompanyRelation === "no"){
+        lines.push("- Kein Unternehmensbezug angegeben.");
+      } else if(d.hasCompanyRelation === "yes"){
+        lines.push("- Unternehmensbezug: Ja");
+        lines.push(`- Rolle: ${renderRole(d.companyRole)}${d.sharePct !== null && d.sharePct !== "" ? " (Anteil ca. " + d.sharePct + "%)" : ""}`);
+        if(d.companyRole === "D"){
+          lines.push(`- Art des Einflusses: ${renderControlDetail(d.controlDetail)}`);
+        }
+        lines.push(`- Zusammenhang dieses Darlehens mit Unternehmen: ${renderYesNoUnk(d.dealCompanyLink)}`);
+      } else {
+        lines.push("- Unternehmensbezug: Unklar");
+      }
+      lines.push("");
+    }
+
+    // Core classification
+    if(ctx.license === "§ 34i GewO"){
+      lines.push("Einordnung:");
+      lines.push("- Es liegt eine Vermittlung eines Immobiliar-Verbraucherdarlehensvertrags vor (Verbraucher als Darlehensnehmer; Immobiliarbezug durch dingliche Besicherung oder Zweck: Erwerb/Erhaltung von Eigentum an Grundstück/Gebäude).");
+      lines.push("- Vermittlung/beratung erfolgt auf Grundlage der Erlaubnis nach § 34i GewO.");
+    } else if(ctx.license && ctx.license.startsWith("§ 34c")){
+      lines.push("Einordnung:");
+      if(ctx.borrowerStatus === "consumer_only" || ctx.borrowerStatus === "mixed_consumer"){
+        lines.push("- Verbraucherdarlehen ohne Immobiliarbezug (nach den erfassten Kriterien).");
+      } else {
+        lines.push("- Darlehensnehmer handelt als Unternehmer/juristische Person/Personengesellschaft; kein Verbraucher als Darlehensnehmer.");
+      }
+      lines.push("- Vermittlung erfolgt auf Grundlage der Erlaubnis nach § 34c Abs. 1 S. 1 Nr. 2 GewO (Darlehensvermittlung außerhalb §34i).");
+      if(ctx.immobiliarContext && !(ctx.borrowerStatus === "consumer_only" || ctx.borrowerStatus === "mixed_consumer")){
+        lines.push("- Hinweis: Obwohl ein Immobiliarbezug vorliegt (z.B. dingliche Besicherung / Eigentumsbezug), ist §34i typischerweise an den Verbraucherstatus als Darlehensnehmer geknüpft.");
+      }
+    } else {
+      lines.push("Einordnung: (Prüffall / unvollständig)");
+      lines.push("- Bitte Pflichtangaben vervollständigen; danach kann ein Textbaustein erzeugt werden.");
+      return lines.join("\\n");
+    }
+
+    // Facts
+    lines.push("");
+    lines.push("Fakten (aus den Angaben):");
+    lines.push(`- Vertragspartner: ${renderContractParty(d.contractParty)}`);
+    lines.push(`- Zweck: ${renderPurpose(d.purpose)}`);
+    lines.push(`- Erwerb/Erhaltung Eigentum an Grundstück/Gebäude: ${renderYesNoUnk(d.propertyAcq)}`);
+    lines.push(`- Immobilie als Sicherheit: ${renderYesNoUnk(d.reCollateral)}`);
+    if(d.reCollateral === "yes"){
+      lines.push(`- Sicherungsobjekt: ${renderCollateralType(d.collateralType, d.mixedShare)}`);
+    }
+
+    // Structured explanation if natural and consumer but entrepreneurial background
+    if(d.contractParty === "natural" && ctx.license === "§ 34i GewO" && d.hasCompanyRelation === "yes" && ["C","D","E","F"].includes(d.companyRole) && (d.dealCompanyLink === "no")){
+      lines.push("");
+      lines.push("Begründung (Erklärtext für typische Bank-Rückfragen):");
+      lines.push("- Trotz unternehmerischem Hintergrund dient das Darlehen nach Angaben ausschließlich privaten Zwecken (kein Mittelzufluss/kein wirtschaftlicher Zusammenhang zum Geschäftsbetrieb).");
+      lines.push("- Private Vermögenssphäre ist vom Betriebsvermögen getrennt; Einreichung erfolgt daher als Verbrauchergeschäft (§13 BGB) unter §34i-Prozess.");
+    }
+
+    // Warnings
+    if(warnings && warnings.length){
+      lines.push("");
+      lines.push("Hinweise / Prüfpunkte:");
+      warnings.forEach(w => lines.push(`- ${w}`));
+    }
+
+    lines.push("");
+    lines.push("—");
+    lines.push("Hinweis: Dieser Textbaustein ist eine strukturierte Einordnung auf Basis der erfassten Angaben (Decision-Support).");
+
+    return lines.join("\\n");
+  }
+
+  // ---------- rendering helpers ----------
+  function renderContractParty(v){
+    if(v === "natural") return "Natürliche Person(en)";
+    if(v === "entity") return "Juristische Person (z.B. GmbH/UG/AG/eG/e.V.)";
+    if(v === "partnership") return "Personengesellschaft (z.B. GbR/OHG/KG)";
+    return "—";
+  }
+
+  function renderPurpose(v){
+    const m = {
+      "private_home":"Eigenheim (Kauf/Bau/Modernisierung)",
+      "private_rental":"Vermietung/Kapitalanlage (Bestand)",
+      "commercial_invest":"Gewerbliche Investition/Betriebsmittel/Liquidität",
+      "share_purchase_or_injection":"Anteile/Kapitalmaßnahme (Anteils-/Unternehmenskauf, Einlage, Gesellschafterdarlehen)",
+      "refinance_private":"Umschuldung (privat)",
+      "free_use":"Freie Verwendung (privat)",
+      "unknown":"Unklar"
+    };
+    return m[v] || "—";
+  }
+
+  function renderYesNoUnk(v){
+    if(v === "yes") return "Ja";
+    if(v === "no") return "Nein";
+    if(v === "unknown") return "Unklar";
+    return "—";
+  }
+
+  function renderCollateralType(v, mixedShare){
+    if(v === "residential") return "Wohnimmobilie";
+    if(v === "commercial") return "Gewerbeimmobilie";
+    if(v === "mixed"){
+      const ms = renderYesNoUnk(mixedShare);
+      return `Gemischt genutzt (Wohnen >50%: ${ms})`;
+    }
+    if(v === "unknown") return "Unklar";
+    return "—";
+  }
+
+  function renderRole(v){
+    const m = {
+      "A":"A) Reiner Kapitalanleger / passive Beteiligung",
+      "B":"B) Minderheitsgesellschafter mit Mitarbeit (<25%, kein GF)",
+      "C":"C) Geschäftsführender Gesellschafter (GGF)",
+      "D":"D) Beherrschender Gesellschafter",
+      "E":"E) Geschäftsführer (ohne Anteile)",
+      "F":"F) Selbstständig / Freiberufler / Einzelunternehmer"
+    };
+    return m[v] || "—";
+  }
+
+  function renderControlDetail(v){
+    const m = {
+      "majority":"Mehrheit > 50% Stimmrechte",
+      "blocking":"Sperrminorität (≥25%) + besondere Rechte / Stimmbindung",
+      "instruction":"Weisungs-/Bestellungs-/Abberufungsrechte",
+      "unknown":"Unklar"
+    };
+    return m[v] || "—";
+  }
+
+  function renderWarnings(warnings){
+    const wrap = $("warningsWrap");
+    wrap.innerHTML = "";
+    if(!warnings || warnings.length === 0) return;
+
+    const box = document.createElement("div");
+    box.className = "warnbox";
+    const title = document.createElement("div");
+    title.style.fontWeight = "900";
+    title.textContent = "⚠️ Prüfpunkte / Bank-Compliance";
+    box.appendChild(title);
+
+    const ul = document.createElement("ul");
+    warnings.forEach(w => addLi(ul, w));
+    box.appendChild(ul);
+
+    wrap.appendChild(box);
+  }
+
+  // ---------- event handlers ----------
+  function doEvaluate(){
+    refreshUI();
+
+    const data = {
+      contractParty: val("contractParty"),
+      statusOverride: val("statusOverride"),
+      hasCompanyRelation: val("hasCompanyRelation"),
+      companyRole: val("companyRole"),
+      controlDetail: val("controlDetail"),
+      sharePct: numVal("sharePct"),
+      dealCompanyLink: val("dealCompanyLink"),
+
+      purpose: val("purpose"),
+      propertyAcq: val("propertyAcq"),
+      reCollateral: val("reCollateral"),
+      collateralType: val("collateralType"),
+      mixedShare: val("mixedShare"),
+
+      loanAmountEur: numVal("loanAmount"),
+      existFounder: val("existFounder"),
+      spouseCob: val("spouseCob"),
+      spouseBenefit: val("spouseBenefit")
+    };
+
+    const res = evaluate(data);
+
+    // Ampel + headline
+    const ampel = $("ampel");
+    ampel.className = "ampel " + res.ampel;
+    const statusLabel = res.borrowerStatus ? (" | Status: " + res.borrowerStatus) : "";
+    $("headline").textContent = res.headline + "  |  Empfohlen: " + res.license;
+    $("tagline").textContent = res.tagline;
+
+    // Reasons
+    const reasonsUl = $("reasons");
+    clearList(reasonsUl);
+    (res.reasons && res.reasons.length ? res.reasons : ["—"]).forEach(r => addLi(reasonsUl, r));
+
+    // Missing
+    const missingUl = $("missing");
+    clearList(missingUl);
+    if(res.missing && res.missing.length){
+      $("missingNone").style.display = "none";
+      res.missing.forEach(m => addLi(missingUl, m));
+    } else {
+      $("missingNone").style.display = "";
+    }
+
+    // Bank text
+    $("bankText").value = res.bankText || "";
+
+    // Warnings
+    renderWarnings(res.warnings);
+  }
+
+  function doReset(){
+    const selects = ["contractParty","statusOverride","hasCompanyRelation","companyRole","controlDetail","dealCompanyLink","purpose","propertyAcq","reCollateral","collateralType","mixedShare","existFounder","spouseCob","spouseBenefit"];
+    selects.forEach(id => { if($(id)) $(id).value = ""; });
+    $("sharePct").value = "";
+    $("loanAmount").value = "";
+
+    refreshUI();
+
+    $("ampel").className = "ampel";
+    $("headline").textContent = "Noch keine Einschätzung";
+    $("tagline").textContent = "Fülle links die Felder aus und klicke „Einschätzung erstellen“.";
+    clearList($("reasons"));
+    clearList($("missing"));
+    $("missingNone").style.display = "";
+    $("bankText").value = "";
+    $("warningsWrap").innerHTML = "";
+  }
+
+  $("btnEval").addEventListener("click", doEvaluate);
+  $("btnReset").addEventListener("click", doReset);
+
+  // Initial
+  refreshUI();
+</script>
+</body>
+</html>
